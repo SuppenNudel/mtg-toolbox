@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import suppennudel.gui.MainController;
 
 public class Launcher extends Application {
 
@@ -38,7 +39,7 @@ public class Launcher extends Application {
 		primaryStage.show();
 	}
 
-	private static FXMLLoader createFxmlLoader(Class<? extends Initializable> controller) {
+	public static FXMLLoader createFxmlLoader(Class<? extends Initializable> controller) {
 		String fxmlName = controller.getSimpleName().replace("Controller", "View");
 		URL location = controller.getResource(fxmlName+".fxml");
 		FXMLLoader fxmlLoader = new FXMLLoader(location);

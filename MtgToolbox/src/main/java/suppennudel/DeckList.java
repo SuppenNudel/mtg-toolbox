@@ -30,7 +30,7 @@ public class DeckList {
 		ListSection listSection = null;
 		for (String line : lines) {
 			if (line.isEmpty()) {
-				// don't change, just skip
+				listSection = ListSection.SIDEBOARD;
 			} else if (line.equals("Deck")) {
 				listSection = ListSection.MAIN;
 			} else if (line.equals("Sideboard")) {
@@ -55,6 +55,7 @@ public class DeckList {
 						break;
 					}
 					if(mapToPutIn != null) {
+						cardname = cardname.replaceAll(" //.*", "");
 						mapToPutIn.put(cardname, amount);
 					}
 				} catch (Exception e) {
@@ -75,7 +76,8 @@ public class DeckList {
 	public boolean equals(Object obj) {
 		if (obj instanceof DeckList) {
 			DeckList other = (DeckList) obj;
-			return other.toString().equals(toString());
+			boolean result = other.toString().equals(toString());
+			return result;
 		}
 		return false;
 	}
