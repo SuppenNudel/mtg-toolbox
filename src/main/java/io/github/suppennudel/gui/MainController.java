@@ -1,15 +1,15 @@
-package suppennudel.gui;
+package io.github.suppennudel.gui;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import io.github.suppennudel.Launcher;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import suppennudel.Launcher;
 
 public class MainController implements Initializable {
 

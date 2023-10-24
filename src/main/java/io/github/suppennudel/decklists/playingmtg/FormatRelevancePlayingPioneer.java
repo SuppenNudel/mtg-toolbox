@@ -1,4 +1,4 @@
-package suppennudel.playingmtg;
+package io.github.suppennudel.decklists.playingmtg;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,8 +17,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import suppennudel.DeckList;
-import suppennudel.DeckList.Tier;
+import io.github.suppennudel.decklists.playingmtg.PlayingMtgDeckInfo.Tier;
 
 public class FormatRelevancePlayingPioneer {
 
@@ -27,17 +26,17 @@ public class FormatRelevancePlayingPioneer {
 	private static final Pattern pattern = Pattern
 			.compile("(?<quantity>\\d+) (?<cardname>[^\\/\\n]+[^\\s\\/])( \\/\\/ (.*))?");
 
-	public static List<DeckList> getDeckLists() throws MalformedURLException, IOException {
-		List<DeckList> overview = getOverview();
-		List<DeckList> deckLists = new ArrayList<>();
-		for (DeckList deck : overview) {
+	public static List<PlayingMtgDeckInfo> getDeckLists() throws MalformedURLException, IOException {
+		List<PlayingMtgDeckInfo> overview = getOverview();
+		List<PlayingMtgDeckInfo> deckLists = new ArrayList<>();
+		for (PlayingMtgDeckInfo deck : overview) {
 			fillDeckList(deck);
 		}
 		return deckLists;
 	}
 
-	public static List<DeckList> getOverview() throws MalformedURLException, IOException {
-		List<DeckList> overview = new ArrayList<>();
+	public static List<PlayingMtgDeckInfo> getOverview() throws MalformedURLException, IOException {
+		List<PlayingMtgDeckInfo> overview = new ArrayList<>();
 
 		overview.addAll(overviewFromUrl(PP_TIER_LIST_URL));
 		overview.addAll(overviewFromUrl(PP_ARCHIVE_URL));
@@ -45,8 +44,8 @@ public class FormatRelevancePlayingPioneer {
 		return overview;
 	}
 
-	private static List<DeckList> overviewFromUrl(String ppUrl) throws MalformedURLException, IOException {
-		List<DeckList> overview = new ArrayList<>();
+	private static List<PlayingMtgDeckInfo> overviewFromUrl(String ppUrl) throws MalformedURLException, IOException {
+		List<PlayingMtgDeckInfo> overview = new ArrayList<>();
 		Document docArchive = Jsoup.parse(new URL(ppUrl), 10000);
 		Elements archiveArticles = docArchive.select("article.entry-card");
 		for (Element article : archiveArticles) {
@@ -68,7 +67,9 @@ public class FormatRelevancePlayingPioneer {
 			} else {
 				throw new RuntimeException("URL not handled: "+ppUrl);
 			}
-			DeckList deckList = new DeckList(text, url, tier);
+			PlayingMtgDeckInfo deckList = new PlayingMtgDeckInfo(text);
+			deckList.setUrl(url);
+			deckList.setTier(tier);
 			deckList.setThumbSource(thumbSource);
 			overview.add(deckList);
 		}
@@ -77,10 +78,10 @@ public class FormatRelevancePlayingPioneer {
 
 	private static final LocalDate today = LocalDate.now();
 
-	public static boolean fillDeckList(DeckList deckList) throws MalformedURLException, IOException {
+	public static boolean fillDeckList(PlayingMtgDeckInfo deckList) throws MalformedURLException, IOException {
 		File deckListCache = deckListCache(deckList);
 		if(deckListCache.exists()) {
-			deckList.loadFromFile(deckListCache);
+			deckList.parse(deckListCache);
 			return true;
 		}
 
@@ -117,7 +118,7 @@ public class FormatRelevancePlayingPioneer {
 		return true;
 	}
 
-	private static void writeDeckListToFile(DeckList deckList) throws IOException {
+	private static void writeDeckListToFile(PlayingMtgDeckInfo deckList) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Deck" + System.lineSeparator());
 		deckList.getMain().forEach((t, u) -> sb.append(u + " " + t + System.lineSeparator()));
@@ -129,7 +130,7 @@ public class FormatRelevancePlayingPioneer {
 				StandardCharsets.UTF_8, false);
 	}
 
-	private static File deckListCache(DeckList deckList) {
+	private static File deckListCache(PlayingMtgDeckInfo deckList) {
 		return new File("decklists/" + today + "/" + deckList.getName());
 	}
 

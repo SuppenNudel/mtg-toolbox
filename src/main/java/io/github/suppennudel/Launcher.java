@@ -1,16 +1,16 @@
-package suppennudel;
+package io.github.suppennudel;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import io.github.suppennudel.gui.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import suppennudel.gui.MainController;
 
 public class Launcher extends Application {
 

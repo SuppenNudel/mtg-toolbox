@@ -1,4 +1,4 @@
-package suppennudel.gui;
+package io.github.suppennudel.gui;
 
 import java.util.Collections;
 

@@ -1,3 +1,4 @@
+package io.github.suppennudel;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,10 +23,10 @@ import de.rohmio.mtg.scryfall.api.model.enums.Direction;
 import de.rohmio.mtg.scryfall.api.model.enums.PriceType;
 import de.rohmio.mtg.scryfall.api.model.enums.Sorting;
 import de.rohmio.mtg.scryfall.api.model.enums.Unique;
+import io.github.suppennudel.decklists.playingmtg.PlayingMtgDeckInfo;
+import io.github.suppennudel.gui.SimulDecksView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import suppennudel.DeckList;
-import suppennudel.gui.SimulDecksView;
 
 public class SimultaneousDeckBuilding {
 
@@ -38,9 +39,9 @@ public class SimultaneousDeckBuilding {
 		SimulDecksView.simulatePossession(collection, toSimulate);
 
 		File[] files = new File("src/test/resources/deck-lists").listFiles();
-		List<DeckList> deckLists = new ArrayList<>();
+		List<PlayingMtgDeckInfo> deckLists = new ArrayList<>();
 		for (File file : files) {
-			DeckList deckList = new DeckList(file);
+			PlayingMtgDeckInfo deckList = new PlayingMtgDeckInfo(file);
 			deckLists.add(deckList);
 		}
 
@@ -48,9 +49,9 @@ public class SimultaneousDeckBuilding {
 
 	}
 
-	private void calcCombinations(Map<String, Integer> collection, List<DeckList> deckLists) {
-		List<List<DeckList>> nonBuildableSets = new ArrayList<>();
-		List<List<DeckList>> buildableSets = new ArrayList<>();
+	private void calcCombinations(Map<String, Integer> collection, List<PlayingMtgDeckInfo> deckLists) {
+		List<List<PlayingMtgDeckInfo>> nonBuildableSets = new ArrayList<>();
+		List<List<PlayingMtgDeckInfo>> buildableSets = new ArrayList<>();
 		BooleanProperty previousHadBuildables = new SimpleBooleanProperty(true);
 
 		for (int setSize = 1; setSize < deckLists.size() && previousHadBuildables.get(); ++setSize) {
@@ -65,7 +66,7 @@ public class SimultaneousDeckBuilding {
 					return;
 				}
 
-				List<Map<String, Integer>> collect = combo.stream().map(DeckList::getCombined)
+				List<Map<String, Integer>> collect = combo.stream().map(PlayingMtgDeckInfo::getCombined)
 						.collect(Collectors.toList());
 				Map<String, Integer> combinedList = Stream.of(collect.toArray())
 						.flatMap(m -> ((Map<String, Integer>) m).entrySet().stream())

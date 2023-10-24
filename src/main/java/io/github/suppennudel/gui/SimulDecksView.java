@@ -1,4 +1,4 @@
-package suppennudel.gui;
+package io.github.suppennudel.gui;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.paukov.combinatorics3.Generator;
 
@@ -30,9 +31,13 @@ import de.rohmio.mtg.scryfall.api.model.enums.Direction;
 import de.rohmio.mtg.scryfall.api.model.enums.PriceType;
 import de.rohmio.mtg.scryfall.api.model.enums.Sorting;
 import de.rohmio.mtg.scryfall.api.model.enums.Unique;
+import io.github.suppennudel.BinderType;
 import io.github.suppennudel.CsvHandler;
 import io.github.suppennudel.CsvProfile;
 import io.github.suppennudel.MtgCsvBean;
+import io.github.suppennudel.decklists.GenericDeckInfo;
+import io.github.suppennudel.decklists.aetherhub.Aetherhub;
+import io.github.suppennudel.decklists.aetherhub.AetherhubDeckInfo;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
@@ -47,19 +52,17 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import suppennudel.DeckList;
-import suppennudel.playingmtg.FormatRelevancePlayingPioneer;
 
 public class SimulDecksView implements Initializable {
 
 	@FXML
-	private TableView<DeckList> deckListTable;
+	private TableView<GenericDeckInfo> deckListTable;
 	@FXML
-	private TableColumn<DeckList, Boolean> checkColumn;
+	private TableColumn<GenericDeckInfo, Boolean> checkColumn;
 	@FXML
-	private TableColumn<DeckList, String> deckNameColumn;
+	private TableColumn<GenericDeckInfo, String> deckNameColumn;
 	@FXML
-	private TableColumn<DeckList, String> tierColumn;
+	private TableColumn<GenericDeckInfo, String> tierColumn;
 
 	@FXML
 	private TextArea simulatePossessionTextArea;
@@ -67,7 +70,7 @@ public class SimulDecksView implements Initializable {
 	@FXML
 	private HBox columnHolder;
 
-	private ObservableList<DeckList> deckLists = FXCollections
+	private ObservableList<GenericDeckInfo> deckLists = FXCollections
 			.observableArrayList(dl -> new Observable[] { dl.selectedProperty() });
 
 	private Map<String, BigDecimal> prices = new HashMap<>();
@@ -83,7 +86,7 @@ public class SimulDecksView implements Initializable {
 		deckListTable.setColumnResizePolicy(p -> true);
 
 		checkColumn.setCellFactory(col -> {
-			CheckBoxTableCell<DeckList, Boolean> checkBoxTableCell = new CheckBoxTableCell<>();
+			CheckBoxTableCell<GenericDeckInfo, Boolean> checkBoxTableCell = new CheckBoxTableCell<>();
 			checkBoxTableCell.setSelectedStateCallback(index -> deckListTable.getItems().get(index).selectedProperty());
 			return checkBoxTableCell;
 		});
@@ -92,10 +95,6 @@ public class SimulDecksView implements Initializable {
 
 		deckNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 		tierColumn.setCellValueFactory(new PropertyValueFactory<>("tier"));
-
-		deckLists.setAll(loadDeckListsFromPlayingMtg());
-		// List<DeckList> deckLists = loadDeckLists();
-		start();
 	}
 
 	@FXML
@@ -138,12 +137,12 @@ public class SimulDecksView implements Initializable {
 	 * pane.getChildren().setAll(workingCollection); }
 	 */
 
-	private List<DeckList> loadDeckLists() {
-		File[] files = new File("src/test/resources/deck-lists").listFiles((FileFilter) File::isFile);
-		List<DeckList> deckLists = new ArrayList<>();
+	private List<GenericDeckInfo> loadDeckLists() {
+		File[] files = new File("decks").listFiles((FileFilter) File::isFile);
+		List<GenericDeckInfo> deckLists = new ArrayList<>();
 		for (File file : files) {
 			try {
-				DeckList deckList = new DeckList(file);
+				GenericDeckInfo deckList = new AetherhubDeckInfo(file);
 				deckLists.add(deckList);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -152,7 +151,28 @@ public class SimulDecksView implements Initializable {
 		return deckLists;
 	}
 
-	private List<DeckList> loadDeckListsFromPlayingMtg() {
+	@FXML
+	private void loadDeckListsFromAetherHub() {
+		Aetherhub aetherhub = new Aetherhub();
+		List<AetherhubDeckInfo> deckLists = aetherhub.getDeckLists("PlayingMTG", Aetherhub.Format.PIONEER);
+		List<AetherhubDeckInfo> collect = deckLists.stream().map(deck -> {
+			try {
+				File file = aetherhub.downloadDeckListToFile(deck);
+				AetherhubDeckInfo aetherhubDeckInfo = new AetherhubDeckInfo(file);
+				return aetherhubDeckInfo;
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return deck;
+		}).collect(Collectors.toList());
+
+		this.deckLists.setAll(collect);
+	}
+
+	/*
+	private List<GenericDeckInfo> loadDeckListsFromPlayingMtg() {
 		ExecutorService executor = Executors.newFixedThreadPool(5, r -> {
 			Thread thread = Executors.defaultThreadFactory().newThread(r);
 			thread.setName("loadDeckList - " + thread.getName());
@@ -160,14 +180,14 @@ public class SimulDecksView implements Initializable {
 			return thread;
 		});
 		try {
-			List<DeckList> overview = FormatRelevancePlayingPioneer.getOverview();
-			List<Callable<DeckList>> tasks = new ArrayList<>();
-			for (DeckList decklist : overview) {
+			List<GenericDeckInfo> allDecks = FormatRelevancePlayingPioneer.getOverview();
+			List<Callable<GenericDeckInfo>> tasks = new ArrayList<>();
+			for (GenericDeckInfo decklist : allDecks) {
 				tasks.add(() -> {
 					try {
 						boolean success = FormatRelevancePlayingPioneer.fillDeckList(decklist);
 						if (!success) {
-							overview.remove(decklist);
+							allDecks.remove(decklist);
 						}
 						return decklist;
 					} catch (MalformedURLException e) {
@@ -178,14 +198,13 @@ public class SimulDecksView implements Initializable {
 					return null;
 				});
 			}
-			;
 			try {
 				executor.invokeAll(tasks);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 			executor.shutdown();
-			return overview;
+			return allDecks;
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -193,6 +212,7 @@ public class SimulDecksView implements Initializable {
 		}
 		return null;
 	}
+	 */
 
 	private ListChangeListener<DeckComboView> createDeckComboAddedListener() {
 		return c -> {
@@ -237,15 +257,15 @@ public class SimulDecksView implements Initializable {
 		});
 	}
 
-	private void calcCombinations(Map<String, Integer> collection, List<DeckList> deckLists) {
+	private void calcCombinations(Map<String, Integer> collection, List<GenericDeckInfo> deckLists) {
 		ExecutorService executor = createExecutor();
 
-		Set<DeckList> previousSuccessfulDeckLists = null;
+		Set<GenericDeckInfo> previousSuccessfulDeckLists = null;
 		for (int setSize = 1; previousSuccessfulDeckLists == null
 				|| setSize < deckLists.size() && previousSuccessfulDeckLists.size() > 0; ++setSize) {
 			System.out.println("Set Size: " + setSize + " with " + previousSuccessfulDeckLists);
 			LocalDateTime start = LocalDateTime.now();
-			Set<DeckList> successfulDeckLists = new HashSet<>();
+			Set<GenericDeckInfo> successfulDeckLists = new HashSet<>();
 
 			List<Callable<DeckComboView>> tasks = new ArrayList<>();
 			Generator.combination(previousSuccessfulDeckLists == null ? deckLists : previousSuccessfulDeckLists)
@@ -277,7 +297,7 @@ public class SimulDecksView implements Initializable {
 		executor.shutdown();
 	}
 
-	private DeckComboView calculateCombo(List<DeckList> combo) {
+	private DeckComboView calculateCombo(List<GenericDeckInfo> combo) {
 		Thread.currentThread().setName(combo.size() + " - " + combo.toString());
 		// check if combo should be analyzed
 		// not analyzing if subset is already not buildable
@@ -337,6 +357,10 @@ public class SimulDecksView implements Initializable {
 		List<MtgCsvBean> readCsv = CsvHandler.readCsv(collectionFile, CsvProfile.MANABOX);
 		Map<String, Integer> collection = new HashMap<>();
 		readCsv.forEach(bean -> {
+			BinderType binderType = bean.getBinderType();
+			if(binderType == BinderType.list) {
+				return;
+			}
 			collection.compute(bean.getCardName().replaceAll(" //.*", ""), (key, previousValue) -> {
 				Integer quantity = bean.getQuantity();
 				if (previousValue == null) {
