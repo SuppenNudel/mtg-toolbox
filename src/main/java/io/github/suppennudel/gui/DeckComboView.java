@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import io.github.suppennudel.decklists.GenericDeckInfo;
+import io.github.suppennudel.decklists.GenericDeckInfoFx;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -21,11 +21,11 @@ import javafx.scene.layout.VBox;
 
 public class DeckComboView extends VBox {
 
-	private List<GenericDeckInfo> deckCombo;
+	private List<GenericDeckInfoFx> deckCombo;
 	private ObjectProperty<BigDecimal> totalMissingPrice = new SimpleObjectProperty<>(new BigDecimal("0"));
 	private ObservableList<MissingCard> missingCards = FXCollections.observableArrayList();
 
-	public DeckComboView(List<GenericDeckInfo> deckCombo) {
+	public DeckComboView(List<GenericDeckInfoFx> deckCombo) {
 		this.deckCombo = deckCombo;
 
 		VBox vDeckNames = new VBox();
@@ -91,7 +91,7 @@ public class DeckComboView extends VBox {
 		return totalMissingPrice;
 	}
 
-	public List<GenericDeckInfo> getDeckCombo() {
+	public List<GenericDeckInfoFx> getDeckCombo() {
 		return deckCombo;
 	}
 

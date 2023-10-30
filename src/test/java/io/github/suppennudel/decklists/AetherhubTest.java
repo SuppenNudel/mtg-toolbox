@@ -1,4 +1,4 @@
-package io.github.suppennudel.decklistsource;
+package io.github.suppennudel.decklists;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -12,7 +12,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
-import io.github.suppennudel.decklists.DeckListSource;
 import io.github.suppennudel.decklists.aetherhub.Aetherhub;
 import io.github.suppennudel.decklists.aetherhub.AetherhubDeckInfo;
 
@@ -34,15 +33,7 @@ public class AetherhubTest {
 		Aetherhub aetherhub = new Aetherhub();
 		List<AetherhubDeckInfo> deckLists = aetherhub.getDeckLists("PlayingMTG", Aetherhub.Format.PIONEER);
 		deckLists.forEach(deck -> {
-			try {
-				aetherhub.downloadDeckListToFile(deck);
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			aetherhub.downloadDeckListToFile(deck);
 		});
 	}
 
@@ -54,8 +45,7 @@ public class AetherhubTest {
 
 	@Test
 	public void requestTest() {
-		DeckListSource deckListSource = new DeckListSource() {};
-
+		Aetherhub deckListSource = new Aetherhub();
 		deckListSource.makeRequest("https://aetherhub.com/User/PlayingMTG/Decks", driver -> {
 
 		});

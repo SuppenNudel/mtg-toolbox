@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
-import io.github.suppennudel.decklists.GenericDeckInfo;
+import io.github.suppennudel.mtg.generic.MtgDeckInfo;
 
-public class PlayingMtgDeckInfo extends GenericDeckInfo {
+public class PlayingMtgDeckInfo extends MtgDeckInfo {
 
 	public enum Tier {
 		S, A, B, C, D, OFF_META;
@@ -55,8 +55,6 @@ public class PlayingMtgDeckInfo extends GenericDeckInfo {
 				listSection = ListSection.MAIN;
 			} else if (line.equals("Sideboard")) {
 				listSection = ListSection.SIDEBOARD;
-			} else if (line.equals("Companion")) {
-				listSection = ListSection.COMPANION;
 			} else {
 				try {
 					String[] split = line.split(" ", 2);

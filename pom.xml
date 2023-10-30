@@ -14,9 +14,21 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>io.github.suppennudel</groupId>
+			<artifactId>mtg-generic</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<!--dependency>
 			<groupId>de.rohmio.mtg</groupId>
 			<artifactId>mtgjson</artifactId>
 			<version>0.0.1</version>
+		</dependency-->
+
+		<dependency>
+			<groupId>io.github.suppennudel</groupId>
+			<artifactId>mtgtop8-java-crawler</artifactId>
+			<version>0.3.2</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
@@ -25,12 +37,12 @@
 			<artifactId>jsoup</artifactId>
 			<version>1.16.1</version>
 		</dependency>
-		
-		 <dependency>
-            <groupId>org.seleniumhq.selenium</groupId>
-            <artifactId>selenium-java</artifactId>
-            <version>4.13.0</version>
-        </dependency>
+
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>4.13.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.github.dpaukov</groupId>
